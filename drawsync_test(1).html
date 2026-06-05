@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DrawSync 游戏测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 10px 16px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.6em;
+            margin-bottom: 4px;
+        }
+
+        .header .subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 12px;
+            padding: 12px;
+            min-height: 520px;
+        }
+
+        .control-panels {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .panel {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .panel h2 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid #3498db;
+            font-size: 1em;
+        }
+
+        .connection-panel {
+            grid-column: 1 / -1;
+        }
+
+        .status {
+            padding: 6px 8px;
+            border-radius: 4px;
+            margin: 6px 0;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            margin: 2px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #219a52;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .input-group {
+            margin: 6px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.85em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 7px 8px;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .compact-controls {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .room-management {
+            background: #e8f4fd;
+            border-radius: 6px;
+            padding: 8px;
+            margin: 6px 0;
+        }
+
+        .search-section {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .room-list {
+            background: white;
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 4px;
+            max-height: 110px;
+            overflow-y: auto;
+        }
+
+        .room-item {
+            padding: 6px;
+            margin: 3px 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8em;
+        }
+
+        .room-item:hover {
+            background: #e3f2fd;
+        }
+
+        .room-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-players {
+            background: #3498db;
+            color: white;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.75em;
+        }
+
+        .owner-controls {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            border-radius: 6px;
+            padding: 8px;
+            margin: 6px 0 4px 0;
+        }
+
+        .owner-controls h3 {
+            font-size: 0.9em;
+            margin-bottom: 6px;
+            color: #155724;
+        }
+
+        .owner-controls .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 4px;
+        }
+
+        .quick-btn {
+            padding: 6px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.8em;
+            text-align: center;
+        }
+
+        .quick-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        /* 修复日志面板的滚动问题 */
+        .panel.log-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .log-toolbar {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+
+        .message-log {
+            flex: 1;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            min-height: 200px;
+            max-height: 400px;
+        }
+
+        /* 确保日志区域可以正常滚动 */
+        .message-log-container {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-log .sent {
+            color: #3498db;
+            margin: 2px 0;
+            line-height: 1.3;
+        }
+
+        .message-log .received {
+            color: #27ae60;
+            margin: 2px 0;
+            line-height: 1.3;
+        }
+
+        .message-log .system {
+            color: #e67e22;
+            margin: 2px 0;
+            line-height: 1.3;
+        }
+
+        .message-log .error {
+            color: #e74c3c;
+            margin: 2px 0;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 DrawSync 游戏测试</h1>
+            <div class="subtitle">实时画图猜词游戏 · 紧凑版</div>
+        </div>
+
+        <div class="main-content">
+            <!-- 左侧：控制区 -->
+            <div class="control-panels">
+                <!-- 连接面板 -->
+                <div class="panel connection-panel">
+                    <h2>🔗 服务器连接</h2>
+                    <div class="input-group">
+                        <label>服务器地址:</label>
+                        <input type="text" id="serverUrl" value="ws://10.31.36.14:18080" placeholder="ws://服务器IP:端口">
+                    </div>
+                    <div class="input-group">
+                        <label>玩家名称:</label>
+                        <input type="text" id="playerName" value="测试玩家" placeholder="输入你的玩家名">
+                    </div>
+                    <div class="compact-controls">
+                        <button class="btn btn-primary" onclick="connect()">连接</button>
+                        <button class="btn btn-danger" onclick="disconnect()" disabled id="btnDisconnect">断开</button>
+                    </div>
+                    <div id="connectionStatus" class="status disconnected">
+                        🔴 未连接
+                    </div>
+                </div>
+
+                <!-- 房间管理 -->
+                <div class="panel">
+                    <h2>🏠 房间管理</h2>
+
+                    <div class="input-group">
+                        <label>创建房间名称:</label>
+                        <input type="text" id="roomName" value="测试房间" placeholder="输入房间名称">
+                    </div>
+                    <button class="btn btn-primary" onclick="createRoom()" disabled id="btnCreateRoom">创建房间</button>
+
+                    <div class="room-management">
+                        <h3 style="margin-bottom:4px; color:#2c3e50; font-size:0.9em;">🔍 搜索加入房间</h3>
+
+                        <div class="search-section">
+                            <input type="text" id="searchRoomId" placeholder="输入房间ID加入">
+                            <button class="btn btn-success" onclick="searchAndJoinRoom()" disabled id="btnSearchJoin">加入</button>
+                        </div>
+
+                        <div class="input-group" style="margin-top:4px;">
+                            <label>房间列表:</label>
+                            <button class="btn" onclick="refreshRoomList()" disabled id="btnRefreshRooms">刷新</button>
+                        </div>
+
+                        <div id="availableRooms" class="room-list">
+                            <div style="text-align:center; color:#6c757d; padding:8px; font-size:0.8em;">
+                                点击"刷新"查看可用房间
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-danger" onclick="leaveRoom()" disabled id="btnLeaveRoom">离开房间</button>
+                </div>
+
+                <!-- 游戏控制 -->
+                <div class="panel">
+                    <h2>🎮 游戏控制</h2>
+
+                    <!-- 房主控制面板 -->
+                    <div id="ownerControls" class="owner-controls" style="display:none;">
+                        <h3>🎯 房主控制</h3>
+                        <div class="quick-buttons">
+                            <button class="quick-btn" onclick="sendGameStart()" id="btnGameStart">开始游戏</button>
+                            <button class="quick-btn" onclick="sendRoundStart()" id="btnRoundStart">开始回合</button>
+                            <button class="quick-btn" onclick="sendGameEnd()" id="btnGameEnd">结束游戏</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>猜词输入:</label>
+                        <input type="text" id="guessInput" placeholder="输入你的猜测" disabled>
+                    </div>
+                    <button class="btn btn-success" onclick="sendGuess()" disabled id="btnSendGuess">发送猜测</button>
+
+                    <div class="input-group" style="margin-top:8px;">
+                        <label>聊天消息:</label>
+                        <input type="text" id="chatInput" placeholder="输入聊天消息" disabled>
+                    </div>
+                    <button class="btn" onclick="sendChat()" disabled id="btnSendChat">发送聊天</button>
+                </div>
+            </div>
+
+            <!-- 右侧：日志 -->
+            <div class="panel log-panel">
+                <h2>📝 消息日志</h2>
+                <div class="log-toolbar">
+                    <button class="btn" onclick="clearLog()">清空日志</button>
+                    <button class="btn" onclick="testSequence()">测试序列</button>
+                    <button class="btn" onclick="simulateMultiplePlayers()">多玩家提示</button>
+                </div>
+                
+                <div class="message-log-container">
+                    <div class="message-log" id="messageLog">
+                        <div class="system">等待连接服务器...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ... JavaScript代码保持不变 ...
+        let websocket = null;
+        let playerId = '';
+        let currentRoom = '';
+        let isDrawer = false;
+        let gameStarted = false;
+        let isRoomOwner = false;
+        let availableRooms = [];
+        let roomOwnerId = '';
+
+        const MAX_LOG_ENTRIES = 200;
+
+        function connect() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            const playerName = document.getElementById('playerName').value;
+
+            if (!serverUrl) {
+                addLog('❌ 请输入服务器地址', 'error');
+                return;
+            }
+
+            if (!playerName) {
+                addLog('❌ 请输入玩家名称', 'error');
+                return;
+            }
+
+            try {
+                addLog(`🔄 正在连接 ${serverUrl}...`, 'system');
+                websocket = new WebSocket(serverUrl);
+
+                websocket.onopen = function () {
+                    addLog('✅ 连接成功!', 'system');
+                    updateConnectionStatus(true);
+
+                    setTimeout(() => {
+                        const joinMsg = {
+                            type: 1,
+                            username: playerName
+                        };
+                        sendMessage(joinMsg);
+                    }, 300);
+                };
+
+                websocket.onmessage = function (event) {
+                    handleMessage(event.data);
+                };
+
+                websocket.onclose = function () {
+                    addLog('❌ 连接已断开', 'system');
+                    updateConnectionStatus(false);
+                    resetGameState();
+                };
+
+                websocket.onerror = function (error) {
+                    addLog('💥 连接错误: ' + error, 'error');
+                    updateConnectionStatus(false);
+                    resetGameState();
+                };
+
+            } catch (error) {
+                addLog('💥 连接异常: ' + error, 'error');
+            }
+        }
+
+        function disconnect() {
+            if (websocket) {
+                websocket.close();
+            }
+            resetGameState();
+        }
+
+        function sendMessage(message) {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+                websocket.send(messageStr);
+                addLog('📤 发送: ' + messageStr, 'sent');
+            } else {
+                addLog('❌ 未连接服务器', 'error');
+            }
+        }
+
+        function handleMessage(data) {
+            addLog('📥 收到: ' + data, 'received');
+
+            try {
+                const message = JSON.parse(data);
+
+                if (message.response_type === 1 && message.status === 'join_success') {
+                    playerId = message.player_id;
+                    addLog(`🎉 玩家注册成功: ${message.username} (ID: ${playerId})`, 'system');
+                    updatePlayerControls(true);
+                    document.getElementById('btnSearchJoin').disabled = false;
+                    document.getElementById('btnRefreshRooms').disabled = false;
+                }
+
+                if (message.response_type === 10 && message.status === 'room_created') {
+                    currentRoom = message.room_id;
+                    updateRoomInfo(currentRoom, message.room_name);
+                    addLog(`🏠 房间创建成功: ${message.room_name} (ID: ${message.room_id})`, 'system');
+                    addLog(`📢 其他玩家可以使用房间ID: ${message.room_id} 加入房间`, 'system');
+
+                    isRoomOwner = true;
+                    roomOwnerId = playerId;
+                    updateRoomOwnerStatus();
+                    updateGameControls(true);
+                    addLog('👥 当前房间玩家: 1 (你)', 'system');
+                }
+
+                if (message.response_type === 11) {
+                    if (message.status === 'room_joined') {
+                        currentRoom = message.room_id;
+                        updateRoomInfo(currentRoom, message.room_name);
+
+                        if (message.room_owner) {
+                            roomOwnerId = message.room_owner;
+                        } else if (message.players && message.players.length > 0) {
+                            roomOwnerId = message.players[0].player_id;
+                        }
+
+                        isRoomOwner = (roomOwnerId === playerId);
+
+                        const count = message.players ? message.players.length : 0;
+                        if (count > 0) {
+                            addLog(`👥 当前房间玩家数: ${count}`, 'system');
+                        } else {
+                            addLog('👥 当前房间暂无其他玩家', 'system');
+                        }
+
+                        addLog(`✅ 加入房间成功: ${message.room_name}`, 'system');
+                        updateRoomOwnerStatus();
+                        updateGameControls(true);
+
+                    } else if (message.status === 'room_not_found') {
+                        addLog('❌ 房间未找到，请检查房间ID', 'error');
+                    } else if (message.status === 'room_full') {
+                        addLog('❌ 房间已满，无法加入', 'error');
+                    }
+                }
+
+                if (message.response_type === 12 && message.status === 'room_left') {
+                    addLog('🚪 已离开房间', 'system');
+                    currentRoom = '';
+                    updateRoomInfo('', '');
+                    resetGameState();
+                }
+
+                if (message.response_type === 13 && message.status === 'room_list') {
+                    addLog(`📋 获取到 ${message.rooms.length} 个房间`, 'system');
+                    updateAvailableRooms(message.rooms);
+                }
+
+                if (message.response_type === 20 && message.status === 'game_started') {
+                    addLog('🎮 游戏开始!', 'system');
+                    gameStarted = true;
+                }
+
+                if (message.response_type === 22 && message.status === 'round_started') {
+                    addLog('🔄 回合开始!', 'system');
+                }
+
+                if (message.response_type === 14) {
+                    const systemMsg = message.message;
+                    addLog(`⚡ ${systemMsg}`, 'system');
+
+                    if (typeof message.player_count === 'number') {
+                        addLog(`👥 房间玩家数: ${message.player_count}`, 'system');
+                    }
+
+                    if (systemMsg.includes('joined') || systemMsg.includes('left')) {
+                        addLog('🔄 检测到玩家变动，刷新房间状态...', 'system');
+                        setTimeout(() => {
+                            if (currentRoom) {
+                                sendMessage({
+                                    type: 11,
+                                    room_id: currentRoom
+                                });
+                            }
+                        }, 400);
+                    }
+                }
+
+            } catch (e) {
+                if (data.startsWith('system Player')) {
+                    const systemMsg = data.replace('system ', '');
+                    addLog(`⚡ ${systemMsg}`, 'system');
+
+                    if (systemMsg.includes('joined the room') || systemMsg.includes('left the room')) {
+                        addLog('🔄 检测到玩家变动，刷新房间状态...', 'system');
+                        setTimeout(() => {
+                            if (currentRoom) {
+                                sendMessage({
+                                    type: 11,
+                                    room_id: currentRoom
+                                });
+                            }
+                        }, 400);
+                    }
+                } else if (data.startsWith('Echo:')) {
+                    return;
+                } else if (data === 'game_start') {
+                    addLog('🎮 游戏开始了!', 'system');
+                    gameStarted = true;
+                } else if (data.startsWith('round_start drawer:')) {
+                    const drawer = data.replace('round_start drawer:', '');
+                    addLog(`🎨 新回合开始! 画师: ${drawer}`, 'system');
+
+                    isDrawer = (drawer === playerId);
+                    if (isDrawer) {
+                        addLog('🎨 你是这一轮的画师!', 'system');
+                        document.getElementById('guessInput').disabled = true;
+                        document.getElementById('btnSendGuess').disabled = true;
+                    } else {
+                        document.getElementById('guessInput').disabled = false;
+                        document.getElementById('btnSendGuess').disabled = false;
+                        addLog('🤔 你可以开始猜词了!', 'system');
+                    }
+
+                } else if (data === 'guessing_start') {
+                    addLog('🤔 猜词阶段开始!', 'system');
+                    if (!isDrawer) {
+                        document.getElementById('guessInput').disabled = false;
+                        document.getElementById('btnSendGuess').disabled = false;
+                        addLog('💡 输入你的猜测并点击发送!', 'system');
+                    }
+
+                } else if (data.startsWith('correct_guess player:')) {
+                    const guessInfo = data.replace('correct_guess ', '');
+                    addLog(`🎉 ${guessInfo} - 猜对了！`, 'system');
+                    addLog('🏁 回合结束！等待下一回合开始', 'system');
+                    document.getElementById('guessInput').disabled = true;
+                    document.getElementById('btnSendGuess').disabled = true;
+
+                } else if (data.startsWith('wrong_guess player:')) {
+                    const guessInfo = data.replace('wrong_guess ', '');
+                    addLog(`❌ ${guessInfo} - 猜错了，继续努力！`, 'system');
+
+                } else if (data.startsWith('round_end word:')) {
+                    const word = data.replace('round_end word:', '');
+                    addLog(`📝 【回合结束】词语是: ${word}`, 'system');
+                    document.getElementById('guessInput').disabled = true;
+                    document.getElementById('btnSendGuess').disabled = true;
+                    isDrawer = false;
+
+                } else if (data === 'wait_next_round') {
+                    addLog('⏳ 等待下一回合...', 'system');
+
+                } else if (data.startsWith('chat ')) {
+                    addLog(`💬 ${data.replace('chat ', '')}`, 'system');
+
+                } else if (data.startsWith('drawer_word:')) {
+                    const word = data.replace('drawer_word:', '');
+                    addLog(`🎨 你是画师! 词语是: ${word}`, 'system');
+                    isDrawer = true;
+                    document.getElementById('guessInput').disabled = true;
+                    document.getElementById('btnSendGuess').disabled = true;
+
+                } else if (data.includes('"type": "drawer_word"')) {
+                    try {
+                        const drawerMsg = JSON.parse(data);
+                        if (drawerMsg.type === 'drawer_word' && drawerMsg.word) {
+                            addLog(`🎨 你是画师! 词语是: ${drawerMsg.word}`, 'system');
+                            isDrawer = true;
+                            document.getElementById('guessInput').disabled = true;
+                            document.getElementById('btnSendGuess').disabled = true;
+                        }
+                    } catch (e2) {}
+                } else if (data === 'game_end') {
+                    addLog('🏁 游戏结束!', 'system');
+                    resetGameState();
+                }
+            }
+        }
+
+        function joinGame() {
+            const playerName = document.getElementById('playerName').value;
+            sendMessage({
+                type: 1,
+                username: playerName
+            });
+        }
+
+        function leaveGame() {
+            sendMessage({
+                type: 2
+            });
+            resetGameState();
+        }
+
+        function createRoom() {
+            const roomName = document.getElementById('roomName').value;
+            sendMessage({
+                type: 10,
+                room_name: roomName
+            });
+        }
+
+        function searchAndJoinRoom() {
+            const roomId = document.getElementById('searchRoomId').value.trim();
+            if (!roomId) {
+                addLog('❌ 请输入房间ID', 'error');
+                return;
+            }
+
+            addLog(`🔍 搜索房间: ${roomId}`, 'system');
+            sendMessage({
+                type: 11,
+                room_id: roomId
+            });
+        }
+
+        function leaveRoom() {
+            sendMessage({
+                type: 12
+            });
+            currentRoom = '';
+            updateRoomInfo('', '');
+            resetGameState();
+            addLog('🚪 正在离开房间...', 'system');
+        }
+
+        function refreshRoomList() {
+            addLog('🔄 获取房间列表中...', 'system');
+            sendMessage({
+                type: 13
+            });
+        }
+
+        function updateAvailableRooms(rooms) {
+            availableRooms = rooms;
+            const roomsContainer = document.getElementById('availableRooms');
+
+            if (!rooms || rooms.length === 0) {
+                roomsContainer.innerHTML = `
+                    <div style="text-align:center; color:#6c757d; padding:8px; font-size:0.8em;">
+                        暂无可用房间，请创建新房间
+                    </div>
+                `;
+            } else {
+                roomsContainer.innerHTML = rooms.map(room => `
+                    <div class="room-item" onclick="joinRoomById('${room.room_id}')">
+                        <div class="room-info">
+                            <div>
+                                <strong>${room.room_name}</strong>
+                                <div style="font-size:0.75em; color:#6c757d;">ID: ${room.room_id}</div>
+                            </div>
+                            <div class="room-players">
+                                ${room.player_count || 1} / 6 人
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function joinRoomById(roomId) {
+            document.getElementById('searchRoomId').value = roomId;
+            searchAndJoinRoom();
+        }
+
+        function sendGameStart() {
+            if (!isRoomOwner) {
+                addLog('❌ 只有房主才能开始游戏!', 'error');
+                return;
+            }
+            addLog('🎮 房主开始游戏...', 'system');
+            sendMessage({ type: 20 });
+        }
+
+        function sendRoundStart() {
+            if (!isRoomOwner) {
+                addLog('❌ 只有房主才能开始回合!', 'error');
+                return;
+            }
+            addLog('🔄 房主开始回合...', 'system');
+            sendMessage({ type: 22 });
+        }
+
+        function sendGameEnd() {
+            if (!isRoomOwner) {
+                addLog('❌ 只有房主才能结束游戏!', 'error');
+                return;
+            }
+            addLog('🏁 房主结束游戏...', 'system');
+            sendMessage({ type: 21 });
+            resetGameState();
+        }
+
+        function sendGuess() {
+            const guess = document.getElementById('guessInput').value.trim();
+            if (guess) {
+                sendMessage({
+                    type: 5,
+                    guess: guess
+                });
+                document.getElementById('guessInput').value = '';
+            }
+        }
+
+        function sendChat() {
+            const chat = document.getElementById('chatInput').value.trim();
+            if (chat) {
+                sendMessage({
+                    type: 4,
+                    message: chat
+                });
+                document.getElementById('chatInput').value = '';
+            }
+        }
+
+        function testSequence() {
+            addLog('🧪 开始自动测试序列...', 'system');
+
+            setTimeout(() => createRoom(), 800);
+            setTimeout(() => {
+                if (isRoomOwner) {
+                    addLog('🏠 你现在是房主，可以观察其他玩家加入', 'system');
+                }
+            }, 1500);
+            setTimeout(() => sendGameStart(), 2100);
+            setTimeout(() => sendRoundStart(), 2700);
+            setTimeout(() => {
+                if (!isDrawer) {
+                    document.getElementById('guessInput').value = '测试猜测';
+                    sendGuess();
+                }
+            }, 3300);
+            setTimeout(() => {
+                document.getElementById('chatInput').value = '自动测试消息';
+                sendChat();
+            }, 3900);
+        }
+
+        function simulateMultiplePlayers() {
+            addLog('👥 多玩家测试提示：', 'system');
+            addLog('💡 在其他浏览器标签页或设备上打开此页面', 'system');
+            addLog('💡 让一个玩家创建房间，其他玩家使用房间ID加入', 'system');
+            addLog('💡 观察玩家进出房间时日志变化', 'system');
+        }
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            const btnDisconnect = document.getElementById('btnDisconnect');
+
+            if (connected) {
+                status.textContent = '🟢 已连接';
+                status.className = 'status connected';
+                btnDisconnect.disabled = false;
+                document.getElementById('chatInput').disabled = false;
+                document.getElementById('btnSendChat').disabled = false;
+                document.getElementById('btnSearchJoin').disabled = false;
+                document.getElementById('btnRefreshRooms').disabled = false;
+            } else {
+                status.textContent = '🔴 未连接';
+                status.className = 'status disconnected';
+                btnDisconnect.disabled = true;
+                updatePlayerControls(false);
+                updateGameControls(false);
+                resetGameState();
+                document.getElementById('btnSearchJoin').disabled = true;
+                document.getElementById('btnRefreshRooms').disabled = true;
+            }
+        }
+
+        function updatePlayerControls(enabled) {
+            document.getElementById('btnCreateRoom').disabled = !enabled;
+        }
+
+        function updateGameControls(enabled) {
+            const isConnected = websocket && websocket.readyState === WebSocket.OPEN;
+            const shouldEnable = isConnected && enabled && currentRoom !== '';
+
+            if (shouldEnable && isRoomOwner) {
+                document.getElementById('ownerControls').style.display = 'block';
+            } else {
+                document.getElementById('ownerControls').style.display = 'none';
+            }
+        }
+
+        function updateRoomOwnerStatus() {
+            if (isRoomOwner) {
+                addLog('🎯 你已成为房主，可以控制游戏开始和回合', 'system');
+            }
+        }
+
+        function resetGameState() {
+            gameStarted = false;
+            isDrawer = false;
+            isRoomOwner = false;
+            roomOwnerId = '';
+            currentRoom = '';
+
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('btnSendGuess').disabled = true;
+            document.getElementById('ownerControls').style.display = 'none';
+            document.getElementById('btnLeaveRoom').disabled = true;
+
+            addLog('🔄 游戏状态已重置', 'system');
+        }
+
+        function updateRoomInfo(roomId, roomName) {
+            if (roomId) {
+                document.getElementById('btnLeaveRoom').disabled = false;
+            } else {
+                document.getElementById('btnLeaveRoom').disabled = true;
+            }
+        }
+
+        function addLog(message, type = 'system') {
+            const log = document.getElementById('messageLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = type;
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(logEntry);
+
+            while (log.children.length > MAX_LOG_ENTRIES) {
+                log.removeChild(log.firstChild);
+            }
+
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('messageLog').innerHTML = '';
+        }
+
+        document.getElementById('guessInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendGuess();
+        });
+
+        document.getElementById('chatInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendChat();
+        });
+
+        document.getElementById('searchRoomId').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') searchAndJoinRoom();
+        });
+
+        document.getElementById('serverUrl').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') connect();
+        });
+
+        document.getElementById('playerName').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') connect();
+        });
+    </script>
+</body>
+</html>

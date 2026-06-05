@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="canvasWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>-61</x>
+      <y>-51</y>
+      <width>760</width>
+      <height>900</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QWidget" name="widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>20</y>
+      <width>180</width>
+      <height>740</height>
+     </rect>
+    </property>
+    <widget class="FancyButton" name="colorButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>75</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>颜色</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="eraserButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>75</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>橡皮擦</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="undoButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>100</y>
+       <width>75</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>撤回</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="clearButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>150</y>
+       <width>75</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>清空</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnLeaderboard">
+     <property name="geometry">
+      <rect>
+       <x>105</x>
+       <y>20</y>
+       <width>65</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>排行榜</string>
+     </property>
+    </widget>
+    <widget class="fancy::Slider" name="widthSlider">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>160</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>20</number>
+     </property>
+     <property name="value">
+      <number>2</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="serverUrlEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>220</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>ws://127.0.0.1:9000</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="playerNameEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>250</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>玩家名称</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnConnect">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>280</y>
+       <width>75</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>连接</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnDisconnect">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>95</x>
+       <y>280</y>
+       <width>75</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>断开</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="roomNameEdit">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>315</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>房间名</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnCreateRoom">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>345</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>创建房间</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="roomStatusLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>380</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>未加入房间</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="styleSheet">
+      <string>QLabel {
+    background-color: rgba(52, 152, 219, 200);
+    color: white;
+    padding: 4px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 11px;
+}</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnJoinRoom">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>410</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>加入房间</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnGameStart">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>475</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>开始游戏(房主)</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnRoundStart">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>505</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>开始回合(房主)</string>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnGameEnd">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>535</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>结束游戏(房主)</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="wordLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>560</y>
+       <width>160</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string>QLabel {
+    font-size: 14px;
+    font-weight: bold;
+    color: #2196F3;
+    border: 2px solid #2196F3;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: rgba(33, 150, 243, 0.1);
+}</string>
+     </property>
+     <property name="text">
+      <string>画手词: ---</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="FancyButton" name="btnSendChat">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>600</y>
+       <width>160</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>💬 聊天</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1000</width>
+     <height>17</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FancyButton</class>
+   <extends>QPushButton</extends>
+   <header>FancyButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>fancy::Slider</class>
+   <extends>QSlider</extends>
+   <header>src/Fancy/Slider.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
