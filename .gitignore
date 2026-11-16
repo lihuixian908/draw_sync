@@ -1,0 +1,15 @@
+# CMake 和 Qt Creator 构建目录
+/build/
+/build-*/
+/cmake-build-*/
+
+# Qt Creator 本机配置
+/.qtcreator/
+*.user
+*.user.*
+
+# 客户端运行时数据库
+game_process.db
+game_process.db-journal
+game_process.db-wal
+game_process.db-shm
